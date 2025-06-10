@@ -156,13 +156,13 @@
         import { getFirestore, doc, addDoc, onSnapshot, collection, query, where, writeBatch, serverTimestamp, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
-        apiKey: "AIzaSyCQHVXqgrcEOPxGRbiTq-_EBOGIgX-n-K0",
-        authDomain: "jhs-attendance-app.firebaseapp.com",
-        projectId: "jhs-attendance-app",
-        storageBucket: "jhs-attendance-app.firebasestorage.app",
-        messagingSenderId: "622813604760",
-        appId: "1:622813604760:web:6bd481932e154512b5d9ed",
-        measurementId: "G-BQVD6JB7D5"
+          apiKey: "AIzaSyCQHVXqgrcEOPxGRbiTq-_EBOGIgX-n-K0",
+          authDomain: "jhs-attendance-app.firebaseapp.com",
+          projectId: "jhs-attendance-app",
+          storageBucket: "jhs-attendance-app.firebasestorage.app",
+          messagingSenderId: "622813604760",
+          appId: "1:622813604760:web:6bd481932e154512b5d9ed",
+          measurementId: "G-BQVD6JB7D5"
         };
 
         const appId = 'my-attendance-app';
@@ -832,16 +832,16 @@
             let html = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                     <div class="bg-green-100 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-green-700">${presentPercent}%</div>
-                        <div class="text-sm text-green-600">Present</div>
+                        <div class="text-3xl font-bold text-green-700">${summaryData.totalPresent}</div>
+                        <div class="text-sm text-green-600">Present (${presentPercent}%)</div>
                     </div>
                     <div class="bg-red-100 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-red-700">${absentPercent}%</div>
-                        <div class="text-sm text-red-600">Absent</div>
+                        <div class="text-3xl font-bold text-red-700">${summaryData.totalAbsent}</div>
+                        <div class="text-sm text-red-600">Absent (${absentPercent}%)</div>
                     </div>
                     <div class="bg-orange-100 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-orange-700">${latePercent}%</div>
-                        <div class="text-sm text-orange-600">Late</div>
+                        <div class="text-3xl font-bold text-orange-700">${summaryData.totalLate}</div>
+                        <div class="text-sm text-orange-600">Late (${latePercent}%)</div>
                     </div>
                 </div>
                 <div class="mt-6 border-t pt-4">
