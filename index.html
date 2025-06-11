@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS Library for Excel Export -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        body { font-family: 'Inter', sans-serif; }
         .attendance-radio, .mode-radio { display: none; }
         .attendance-label, .mode-label { display: inline-block; cursor: pointer; padding: 0.5rem 1rem; border-radius: 9999px; transition: all 0.2s ease-in-out; font-weight: 500; min-width: 80px; text-align: center; }
         .attendance-radio:checked + .attendance-label-present { background-color: #10b981; color: white; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
@@ -27,7 +29,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
-<body class="antialiased text-gray-800">
+<body class="antialiased bg-gray-100 text-gray-800">
 
     <!-- Login Screen -->
     <div id="login-screen" class="hidden fixed inset-0 bg-gray-100 flex items-center justify-center p-4 z-50">
@@ -56,9 +58,9 @@
                     <p class="text-lg text-gray-600 mt-1">Manage your classes and track student attendance seamlessly.</p>
                     <div id="user-info" class="mt-2 text-sm text-gray-500"></div>
                 </div>
-                 <div class="flex gap-4">
+                 <div class="flex items-center gap-4">
                     <button id="show-export-modal-btn" class="bg-teal-600 text-white font-bold px-5 py-3 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        <i class="fas fa-file-csv mr-2"></i>Export Report
+                        <i class="fas fa-file-excel mr-2"></i>Export Report
                     </button>
                     <button id="logout-btn" class="bg-red-600 text-white font-bold px-5 py-3 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition transform hover:scale-105">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
@@ -75,31 +77,31 @@
                 <!-- Left Column -->
                 <div class="lg:col-span-1 space-y-8">
                     <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h2 class="text-2xl font-semibold mb-4 flex items-center"><i class="fas fa-chalkboard-teacher mr-3 text-indigo-500"></i>Select Grade Level</h2>
+                        <h2 class="text-2xl font-semibold mb-4 flex items-center text-gray-900"><i class="fas fa-chalkboard-teacher mr-3 text-indigo-500"></i>Select Grade Level</h2>
                         <div id="class-list" class="mt-4 space-y-2 max-h-[80vh] overflow-y-auto"></div>
                     </div>
                     <div id="management-hub" class="bg-white p-6 rounded-2xl shadow-md hidden">
-                        <h2 class="text-2xl font-semibold mb-4 flex items-center"><i class="fas fa-cogs mr-3 text-gray-600"></i>Grade Level Hub</h2>
+                        <h2 class="text-2xl font-semibold mb-4 flex items-center text-gray-900"><i class="fas fa-cogs mr-3 text-gray-600"></i>Grade Level Hub</h2>
                         <h3 id="hub-header" class="text-lg font-medium text-gray-700 mb-4"></h3>
-                        <div class="border-t pt-4">
+                        <div class="border-t border-gray-200 pt-4">
                             <div class="flex justify-between items-center mb-3">
                                 <h4 class="text-lg font-medium text-gray-700 flex items-center"><i class="fas fa-users mr-2 text-green-500"></i>Manage Students</h4>
                                 <button id="show-import-modal-btn" class="text-sm bg-green-100 text-green-800 font-semibold px-3 py-1 rounded-full hover:bg-green-200"><i class="fas fa-upload mr-1"></i> Import</button>
                             </div>
                             <div class="space-y-3">
                                 <div class="grid grid-cols-2 gap-3"><input type="text" id="new-student-firstname" placeholder="First Name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"><input type="text" id="new-student-lastname" placeholder="Last Name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"></div>
-                                <input type="text" id="new-student-middlename" placeholder="Middle Name (Optional)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
-                                 <select id="new-student-section" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 bg-white disabled:bg-gray-100" disabled><option value="">Select Section</option></select>
+                                <div class="grid grid-cols-2 gap-3"><input type="text" id="new-student-middlename" placeholder="Middle Name (Optional)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"><select id="new-student-gender" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 bg-white"><option value="">Gender</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                                <select id="new-student-section" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 bg-white disabled:bg-gray-100" disabled><option value="">Select Section</option></select>
                                 <button id="add-student-btn" class="w-full bg-green-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"><i class="fas fa-user-plus mr-2"></i>Add Student</button>
                             </div>
                             <div id="student-list" class="mt-4 max-h-48 overflow-y-auto pr-2"></div>
                         </div>
-                         <div class="mt-6 border-t pt-4">
+                         <div class="mt-6 border-t border-gray-200 pt-4">
                             <h4 class="text-lg font-medium text-gray-700 mb-3 flex items-center"><i class="fas fa-archive mr-2 text-orange-500"></i>Manage Sections</h4>
                              <div class="flex space-x-2"><input type="text" id="new-section-name" placeholder="New Section Name" class="flex-grow w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"><button id="add-section-btn" class="bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"><i class="fas fa-plus"></i></button></div>
                              <div id="section-list" class="mt-4 space-y-2 max-h-32 overflow-y-auto pr-2"></div>
                         </div>
-                        <div class="mt-6 border-t pt-4">
+                        <div class="mt-6 border-t border-gray-200 pt-4">
                             <h4 class="text-lg font-medium text-gray-700 mb-3 flex items-center"><i class="fas fa-book mr-2 text-purple-500"></i>Manage Subjects</h4>
                              <div class="flex space-x-2"><input type="text" id="new-subject-name" placeholder="New Subject" class="flex-grow w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"><button id="add-subject-btn" class="bg-purple-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"><i class="fas fa-plus"></i></button></div>
                              <div id="subject-list" class="mt-4 space-y-2 max-h-32 overflow-y-auto pr-2"></div>
@@ -111,7 +113,7 @@
                 <div class="lg:col-span-2 space-y-8">
                      <!-- Attendance Summary -->
                     <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h2 class="text-2xl font-semibold mb-4 flex items-center"><i class="fas fa-chart-pie mr-3 text-cyan-500"></i>Attendance Summary</h2>
+                        <h2 class="text-2xl font-semibold mb-4 flex items-center text-gray-900"><i class="fas fa-chart-pie mr-3 text-cyan-500"></i>Attendance Summary</h2>
                         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
                              <select id="summary-grade-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 bg-white"><option value="">Select Grade</option></select>
                              <select id="summary-section-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 bg-white" disabled><option value="all">All Sections</option></select>
@@ -125,13 +127,14 @@
 
                     <div id="attendance-section" class="bg-white p-6 rounded-2xl shadow-md hidden">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                           <div class="flex items-center gap-4">
-                                <div><h2 class="text-2xl font-semibold flex items-center"><i class="fas fa-calendar-check mr-3 text-blue-500"></i>Take Attendance</h2><p id="attendance-header" class="text-lg text-gray-600"></p></div>
+                           <div class="flex items-center gap-4 flex-wrap">
+                                <div><h2 class="text-2xl font-semibold flex items-center text-gray-900"><i class="fas fa-calendar-check mr-3 text-blue-500"></i>Take Attendance</h2><p id="attendance-header" class="text-lg text-gray-600"></p></div>
                                 <button id="sort-students-btn" class="text-sm bg-gray-200 text-gray-800 font-semibold px-3 py-2 rounded-full hover:bg-gray-300 transition-colors"><i class="fas fa-sort-alpha-down mr-1"></i> Sort A-Z</button>
                             </div>
                              <input type="date" id="attendance-date" class="mt-4 sm:mt-0 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                         </div>
-                        <div class="mb-4 p-1 bg-indigo-100 rounded-full flex justify-center space-x-2"><input type="radio" name="attendance-mode" id="mode-daily" value="daily" class="mode-radio" checked><label for="mode-daily" class="mode-label w-1/2">Entire Day</label><input type="radio" name="attendance-mode" id="mode-subject" value="subject" class="mode-radio"><label for="mode-subject" class="mode-label w-1/2">Per Subject</label></div>
+                         <div class="relative mb-4"><input type="search" id="take-attendance-search" placeholder="Search students..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i></div>
+                        <div class="mb-4 p-1 bg-indigo-100 rounded-full flex justify-center space-x-2"><input type="radio" name="attendance-mode" id="mode-daily" value="daily" class="mode-radio" checked><label for="mode-daily" class="mode-label">Entire Day</label><input type="radio" name="attendance-mode" id="mode-subject" value="subject" class="mode-radio"><label for="mode-subject" class="mode-label">Per Subject</label></div>
                         <select id="attendance-subject" class="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white hidden"></select>
                         <div id="attendance-list" class="space-y-4"></div>
                         <div id="no-students-message" class="hidden text-center py-12"><i class="fas fa-user-graduate text-4xl text-gray-400 mb-4"></i><h3 class="text-xl font-medium text-gray-700">No students yet!</h3><p class="text-gray-500">Add or import students to this class.</p></div>
@@ -145,8 +148,29 @@
     </div>
     
     <!-- Modals -->
-    <div id="export-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"><div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-2xl bg-white modal-content"><div class="mt-3 text-center"><h3 class="text-2xl leading-6 font-bold text-gray-900 mb-4">Export Attendance Report</h3><div class="space-y-4 px-7 py-3 text-left"><div><label for="export-class-select" class="block text-sm font-medium text-gray-700 mb-1">Select Grade Level</label><select id="export-class-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 bg-white"></select></div><div class="grid grid-cols-2 gap-4"><div><label for="export-date-start" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label><input type="date" id="export-date-start" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></div><div><label for="export-date-end" class="block text-sm font-medium text-gray-700 mb-1">End Date</label><input type="date" id="export-date-end" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></div></div></div><div class="items-center px-4 py-3 space-y-2"><button id="export-csv-btn" class="w-full bg-teal-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition"><i class="fas fa-download mr-2"></i>Export to CSV</button><button id="close-export-modal-btn" class="w-full bg-gray-200 text-gray-800 font-bold px-6 py-3 rounded-lg hover:bg-gray-300 focus:outline-none">Cancel</button></div></div></div></div>
-    <div id="import-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"><div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-2xl bg-white modal-content"><div class="mt-3"><h3 class="text-2xl leading-6 font-bold text-gray-900 text-center mb-4">Import Students via CSV</h3><div class="px-4 py-3 text-sm text-gray-600 bg-gray-50 rounded-lg"><p class="font-semibold">Instructions:</p><ol class="list-decimal list-inside mt-2 space-y-1"><li>Prepare a CSV file with the headers: `FirstName`, `LastName`, `MiddleName`, `Section`.</li><li>`MiddleName` is optional. Leave the cell blank if not applicable.</li><li>The `Section` must exactly match a section you've set up for the currently selected grade level.</li><li><a href="#" id="download-template-btn" class="text-indigo-600 hover:underline font-semibold">Download Template CSV</a></li></ol></div><div class="mt-4"><label for="csv-file-input" class="block text-sm font-medium text-gray-700 mb-1">Select CSV File</label><input type="file" id="csv-file-input" accept=".csv" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/></div><div class="items-center px-4 py-3 mt-4 space-y-2 border-t"><button id="import-csv-btn" class="w-full bg-green-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition disabled:bg-gray-400"><i class="fas fa-check-circle mr-2"></i>Import Students</button><button id="close-import-modal-btn" class="w-full bg-gray-200 text-gray-800 font-bold px-6 py-3 rounded-lg hover:bg-gray-300 focus:outline-none">Cancel</button></div></div></div></div>
+    <div id="export-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full flex items-center justify-center p-4">
+        <div class="relative w-full max-w-lg bg-white p-8 rounded-2xl shadow-lg modal-content">
+            <h3 class="text-2xl leading-6 font-bold text-gray-900 mb-6">Export DepEd SF2 Report</h3>
+            <div class="space-y-4 text-left">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label for="export-school-name" class="block text-sm font-medium text-gray-700">School Name</label><input type="text" id="export-school-name" placeholder="e.g. Central Elementary School" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></div>
+                    <div><label for="export-school-id" class="block text-sm font-medium text-gray-700">School ID</label><input type="text" id="export-school-id" placeholder="e.g. 123456" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></div>
+                    <div><label for="export-district" class="block text-sm font-medium text-gray-700">District</label><input type="text" id="export-district" placeholder="e.g. Central" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></div>
+                    <div><label for="export-division" class="block text-sm font-medium text-gray-700">Division</label><input type="text" id="export-division" placeholder="e.g. Manila" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></div>
+                    <div><label for="export-region" class="block text-sm font-medium text-gray-700">Region</label><input type="text" id="export-region" placeholder="e.g. NCR" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"></div>
+                </div>
+                <div class="border-t pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label for="export-grade-level" class="block text-sm font-medium text-gray-700">Grade Level & Section</label><select id="export-grade-level" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 bg-white"></select></div>
+                    <div><label for="export-month" class="block text-sm font-medium text-gray-700">Month</label><select id="export-month" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 bg-white"></select></div>
+                </div>
+            </div>
+            <div class="items-center mt-6 pt-4 border-t space-y-2">
+                <button id="export-excel-btn" class="w-full bg-teal-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition"><i class="fas fa-file-excel mr-2"></i>Export SF2</button>
+                <button id="close-export-modal-btn" class="w-full bg-gray-200 text-gray-800 font-bold px-6 py-3 rounded-lg hover:bg-gray-300 focus:outline-none">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="import-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"><div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-2xl bg-white modal-content"><div class="mt-3"><h3 class="text-2xl leading-6 font-bold text-gray-900 text-center mb-4">Import Students via CSV</h3><div class="px-4 py-3 text-sm text-gray-600 bg-gray-50 rounded-lg"><p class="font-semibold">Instructions:</p><ol class="list-decimal list-inside mt-2 space-y-1"><li>Prepare a CSV file with headers: `FirstName`, `LastName`, `MiddleName`, `Gender`, `Section`.</li><li>`Gender` must be `Male` or `Female`. `MiddleName` is optional.</li><li>The `Section` must exactly match a section you've set up for the currently selected grade level.</li><li><a href="#" id="download-template-btn" class="text-indigo-600 hover:underline font-semibold">Download Template CSV</a></li></ol></div><div class="mt-4"><label for="csv-file-input" class="block text-sm font-medium text-gray-700 mb-1">Select CSV File</label><input type="file" id="csv-file-input" accept=".csv" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 hover:file:bg-indigo-100"/></div><div class="items-center px-4 py-3 mt-4 space-y-2 border-t"><button id="import-csv-btn" class="w-full bg-green-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition disabled:bg-gray-400"><i class="fas fa-check-circle mr-2"></i>Import Students</button><button id="close-import-modal-btn" class="w-full bg-gray-200 text-gray-800 font-bold px-6 py-3 rounded-lg hover:bg-gray-300 focus:outline-none">Cancel</button></div></div></div></div>
     
     <div id="toast-container"></div>
 
@@ -156,15 +180,14 @@
         import { getFirestore, doc, addDoc, onSnapshot, collection, query, where, writeBatch, serverTimestamp, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyCQHVXqgrcEOPxGRbiTq-_EBOGIgX-n-K0",
-          authDomain: "jhs-attendance-app.firebaseapp.com",
-          projectId: "jhs-attendance-app",
-          storageBucket: "jhs-attendance-app.firebasestorage.app",
-          messagingSenderId: "622813604760",
-          appId: "1:622813604760:web:6bd481932e154512b5d9ed",
-          measurementId: "G-BQVD6JB7D5"
+        apiKey: "AIzaSyCQHVXqgrcEOPxGRbiTq-_EBOGIgX-n-K0",
+        authDomain: "jhs-attendance-app.firebaseapp.com",
+        projectId: "jhs-attendance-app",
+        storageBucket: "jhs-attendance-app.firebasestorage.app",
+        messagingSenderId: "622813604760",
+        appId: "1:622813604760:web:6bd481932e154512b5d9ed",
+        measurementId: "G-BQVD6JB7D5"
         };
-
         const appId = 'my-attendance-app';
         let app, db, auth, userId = null, currentClass = null;
         let unsubscribe = { students: ()=>{}, subjects: ()=>{}, sections: ()=>{}, attendance: ()=>{} };
@@ -189,6 +212,7 @@
             newStudentFirstNameInput: document.getElementById('new-student-firstname'),
             newStudentMiddleNameInput: document.getElementById('new-student-middlename'),
             newStudentLastNameInput: document.getElementById('new-student-lastname'),
+            newStudentGenderSelect: document.getElementById('new-student-gender'),
             newStudentSectionSelect: document.getElementById('new-student-section'),
             addStudentBtn: document.getElementById('add-student-btn'),
             sectionList: document.getElementById('section-list'),
@@ -201,6 +225,7 @@
             attendancePlaceholder: document.getElementById('attendance-placeholder'),
             attendanceHeader: document.getElementById('attendance-header'),
             sortStudentsBtn: document.getElementById('sort-students-btn'),
+            attendanceSearchInput: document.getElementById('take-attendance-search'),
             attendanceDateInput: document.getElementById('attendance-date'),
             attendanceModeDaily: document.getElementById('mode-daily'),
             attendanceModeSubject: document.getElementById('mode-subject'),
@@ -213,10 +238,14 @@
             exportModal: document.getElementById('export-modal'),
             showExportModalBtn: document.getElementById('show-export-modal-btn'),
             closeExportModalBtn: document.getElementById('close-export-modal-btn'),
-            exportClassSelect: document.getElementById('export-class-select'),
-            exportDateStart: document.getElementById('export-date-start'),
-            exportDateEnd: document.getElementById('export-date-end'),
-            exportCsvBtn: document.getElementById('export-csv-btn'),
+            exportSchoolName: document.getElementById('export-school-name'),
+            exportSchoolId: document.getElementById('export-school-id'),
+            exportDistrict: document.getElementById('export-district'),
+            exportDivision: document.getElementById('export-division'),
+            exportRegion: document.getElementById('export-region'),
+            exportGradeLevel: document.getElementById('export-grade-level'),
+            exportMonth: document.getElementById('export-month'),
+            exportExcelBtn: document.getElementById('export-excel-btn'),
             importModal: document.getElementById('import-modal'),
             showImportModalBtn: document.getElementById('show-import-modal-btn'),
             closeImportModalBtn: document.getElementById('close-import-modal-btn'),
@@ -290,15 +319,16 @@
                 elements.sortStudentsBtn.innerHTML = sortOrder === 'asc' 
                     ? '<i class="fas fa-sort-alpha-down mr-1"></i> Sort A-Z'
                     : '<i class="fas fa-sort-alpha-up mr-1"></i> Sort Z-A';
-                renderAttendanceListUI(currentStudentList);
+                filterAndRenderAttendance();
             });
+            elements.attendanceSearchInput.addEventListener('input', filterAndRenderAttendance);
             elements.attendanceDateInput.addEventListener('change', loadAttendance);
             elements.attendanceSubjectSelect.addEventListener('change', loadAttendance);
             elements.attendanceModeDaily.addEventListener('change', toggleAttendanceMode);
             elements.attendanceModeSubject.addEventListener('change', toggleAttendanceMode);
             elements.showExportModalBtn.addEventListener('click', openExportModal);
             elements.closeExportModalBtn.addEventListener('click', () => elements.exportModal.style.display = 'none');
-            elements.exportCsvBtn.addEventListener('click', exportAttendanceToCSV);
+            elements.exportExcelBtn.addEventListener('click', exportToExcel);
             elements.showImportModalBtn.addEventListener('click', () => elements.importModal.style.display = 'block');
             elements.closeImportModalBtn.addEventListener('click', () => elements.importModal.style.display = 'none');
             elements.downloadTemplateBtn.addEventListener('click', downloadTemplate);
@@ -378,12 +408,13 @@
             const firstName = elements.newStudentFirstNameInput.value.trim();
             const lastName = elements.newStudentLastNameInput.value.trim();
             const middleName = elements.newStudentMiddleNameInput.value.trim();
+            const gender = elements.newStudentGenderSelect.value;
             const section = elements.newStudentSectionSelect.value;
-            if (!firstName || !lastName || !section) return showToast('Please provide first name, last name, and section.', 'error');
+            if (!firstName || !lastName || !section || !gender) return showToast('Please fill all required student fields.', 'error');
             if (!currentClass) return showToast('Please select a grade level first.', 'error');
-            const studentData = { firstName, lastName, middleName, gradeLevel: currentClass.id, section, createdAt: serverTimestamp() };
+            const studentData = { firstName, lastName, middleName, gender, gradeLevel: currentClass.id, section, createdAt: serverTimestamp() };
             addDoc(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/students`), studentData).then(() => {
-                [elements.newStudentFirstNameInput, elements.newStudentLastNameInput, elements.newStudentMiddleNameInput, elements.newStudentSectionSelect].forEach(el => el.value = '');
+                [elements.newStudentFirstNameInput, elements.newStudentLastNameInput, elements.newStudentMiddleNameInput, elements.newStudentSectionSelect, elements.newStudentGenderSelect].forEach(el => el.value = '');
                 showToast('Student added successfully!');
             });
         }
@@ -394,7 +425,7 @@
             unsubscribe.students = onSnapshot(q, (snapshot) => {
                 currentStudentList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderStudentList(currentStudentList);
-                renderAttendanceListUI(currentStudentList); 
+                filterAndRenderAttendance();
             });
         }
         function renderStudentList(students) {
@@ -485,6 +516,11 @@
             elements.attendanceList.style.display = isSubjectMode && !hasSubjects ? 'none' : 'block';
             loadAttendance();
         }
+        function filterAndRenderAttendance() {
+            const searchTerm = elements.attendanceSearchInput.value.toLowerCase();
+            const filteredStudents = currentStudentList.filter(student => formatStudentName(student).toLowerCase().includes(searchTerm));
+            renderAttendanceListUI(filteredStudents);
+        }
         function renderAttendanceListUI(students) {
             elements.attendanceList.innerHTML = '';
             const hasStudents = students && students.length > 0;
@@ -502,7 +538,7 @@
                 const row = document.createElement('div');
                 row.className = 'grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-3 border-b border-gray-200';
                 row.dataset.studentId = student.id;
-                row.innerHTML = `<div class="font-medium text-gray-800">${formatStudentName(student)} <span class="text-sm text-gray-500">(${student.section})</span></div><div class="md:col-span-2 flex justify-start md:justify-end space-x-2"><input type="radio" name="attendance-${student.id}" id="present-${student.id}" value="P" class="attendance-radio" checked><label for="present-${student.id}" class="attendance-label attendance-label-present">Present</label><input type="radio" name="attendance-${student.id}" id="absent-${student.id}" value="A" class="attendance-radio"><label for="absent-${student.id}" class="attendance-label attendance-label-absent">Absent</label><input type="radio" name="attendance-${student.id}" id="late-${student.id}" value="L" class="attendance-radio"><label for="late-${student.id}" class="attendance-label attendance-label-late">Late</label></div>`;
+                row.innerHTML = `<div class="font-medium">${formatStudentName(student)} <span class="text-sm text-gray-500">(${student.section})</span></div><div class="md:col-span-2 flex justify-start md:justify-end space-x-2"><input type="radio" name="attendance-${student.id}" id="present-${student.id}" value="P" class="attendance-radio" checked><label for="present-${student.id}" class="attendance-label attendance-label-present">Present</label><input type="radio" name="attendance-${student.id}" id="absent-${student.id}" value="A" class="attendance-radio"><label for="absent-${student.id}" class="attendance-label attendance-label-absent">Absent</label><input type="radio" name="attendance-${student.id}" id="late-${student.id}" value="L" class="attendance-radio"><label for="late-${student.id}" class="attendance-label attendance-label-late">Late</label></div>`;
                 elements.attendanceList.appendChild(row);
             });
             loadAttendance();
@@ -556,93 +592,156 @@
             showLoading(false);
         }
 
-        function openExportModal() {
-            elements.exportClassSelect.innerHTML = '<option value="">Select Grade</option>';
-            GRADES.forEach(g => elements.exportClassSelect.appendChild(new Option(g,g)));
-            elements.exportModal.style.display = 'block';
-            elements.exportDateStart.value = formatDate(new Date());
-            elements.exportDateEnd.value = formatDate(new Date());
+        async function openExportModal() {
+            elements.exportGradeLevel.innerHTML = '<option value="">Select Grade & Section</option>';
+            
+            for (const gradeDoc of GRADES) {
+                const sectionsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${gradeDoc}/sections`));
+                const sectionsSnapshot = await getDocs(sectionsQuery);
+                if (!sectionsSnapshot.empty) {
+                     sectionsSnapshot.docs.forEach(sectionDoc => {
+                        const sectionName = sectionDoc.data().name;
+                        const optionValue = `${gradeDoc}|${sectionName}`;
+                        const optionText = `${gradeDoc} - ${sectionName}`;
+                        elements.exportGradeLevel.appendChild(new Option(optionText, optionValue));
+                     });
+                }
+            }
+            
+            const monthSelect = elements.exportMonth;
+            monthSelect.innerHTML = '';
+            const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const currentMonth = new Date().getMonth();
+            months.forEach((month, index) => {
+                monthSelect.appendChild(new Option(month, index + 1));
+            });
+            monthSelect.value = currentMonth + 1;
+
+            elements.exportModal.style.display = 'flex';
         }
         
-        async function exportAttendanceToCSV() {
-            const gradeLevel = elements.exportClassSelect.value;
-            const startDate = elements.exportDateStart.value;
-            const endDate = elements.exportDateEnd.value;
+        async function exportToExcel() {
+            const schoolName = elements.exportSchoolName.value;
+            const schoolId = elements.exportSchoolId.value;
+            const district = elements.exportDistrict.value;
+            const division = elements.exportDivision.value;
+            const region = elements.exportRegion.value;
+            const [gradeLevel, section] = elements.exportGradeLevel.value.split('|');
+            const monthIndex = elements.exportMonth.value;
 
-            if(!gradeLevel || !startDate || !endDate) return showToast('Please fill all export fields.', 'error');
-            if(startDate > endDate) return showToast('Start date cannot be after end date.', 'error');
+            if(!schoolName || !schoolId || !gradeLevel || !section || !monthIndex) return showToast('Please fill all form fields.', 'error');
             
             showLoading(true);
             
             try {
-                const studentsRef = collection(db, `artifacts/${appId}/users/${userId}/grades/${gradeLevel}/students`);
+                const year = new Date().getFullYear();
+                const monthName = new Date(year, monthIndex - 1, 1).toLocaleString('default', { month: 'long' });
+                const daysInMonth = new Date(year, monthIndex, 0).getDate();
+
+                const studentsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${gradeLevel}/students`), where('section', '==', section));
                 const attendanceRef = collection(db, `artifacts/${appId}/users/${userId}/attendance`);
+                // FIX: Query only by gradeLevel, then filter date in app
+                const attendanceQuery = query(attendanceRef, where('gradeLevel', '==', gradeLevel));
 
                 const [studentsSnapshot, attendanceSnapshot] = await Promise.all([
-                    getDocs(query(studentsRef)),
-                    getDocs(query(attendanceRef, where('gradeLevel', '==', gradeLevel)))
+                    getDocs(studentsQuery),
+                    getDocs(attendanceQuery)
                 ]);
-
-                const studentsMap = new Map(studentsSnapshot.docs.map(d => [d.id, d.data()]));
                 
-                const attendanceData = attendanceSnapshot.docs
-                    .map(d => d.data())
-                    .filter(record => record.date >= startDate && record.date <= endDate);
+                const students = studentsSnapshot.docs.map(d => ({id: d.id, ...d.data()}));
+                const maleStudents = students.filter(s => s.gender === 'Male').sort((a,b) => formatStudentName(a).localeCompare(formatStudentName(b)));
+                const femaleStudents = students.filter(s => s.gender === 'Female').sort((a,b) => formatStudentName(a).localeCompare(formatStudentName(b)));
 
-                let csvRows = ['Date,LastName,FirstName,MiddleName,Grade,Section,Status,Type,Subject'];
-                const statusMap = { 'P': 'Present', 'A': 'Absent', 'L': 'Late' };
+                const attendanceMap = new Map();
+                const dateFilterStart = `${year}-${String(monthIndex).padStart(2,'0')}-01`;
+                const dateFilterEnd = `${year}-${String(monthIndex).padStart(2,'0')}-${daysInMonth}`;
                 
-                attendanceData.sort((a, b) => a.date.localeCompare(b.date)).forEach(record => {
-                    for (const studentId in record.studentRecords) {
-                        const student = studentsMap.get(studentId);
-                        if (student) {
-                            const status = record.studentRecords[studentId];
-                            const row = [
-                                record.date,
-                                student.lastName,
-                                student.firstName,
-                                student.middleName || '',
-                                student.gradeLevel,
-                                student.section,
-                                statusMap[status] || 'Unknown',
-                                record.type === 'daily' ? 'Full Day' : 'Per Subject',
-                                record.subjectName || 'N/A'
-                            ].map(value => {
-                                const str = String(value || '').replace(/"/g, '""');
-                                return `"${str}"`;
-                            }).join(',');
-                            csvRows.push(row);
-                        }
+                attendanceSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if(data.type === 'daily' && data.date >= dateFilterStart && data.date <= dateFilterEnd) {
+                       attendanceMap.set(data.date, data.studentRecords);
                     }
                 });
 
-                if (csvRows.length <= 1) {
-                    showToast('No attendance records found for the selected range.', 'info');
-                    showLoading(false);
-                    return;
+                let aoa = [];
+                // SF2 Header
+                aoa.push(['School Form 2 (SF2) Daily Attendance Report of Learners']); aoa.push([null]);
+                aoa.push(['School Name', schoolName, null, null, 'School ID', schoolId, null, 'Region', region]);
+                aoa.push(['District', district, null, null, 'Division', division, null, 'Report for the month of', monthName]);
+                aoa.push(['Grade Level', gradeLevel, null, null, 'Section', section]); aoa.push([null]);
+
+                // Table Header
+                let dateHeaderNumbers = [];
+                let dateHeaderDays = [];
+                let weekdayDateStrings = [];
+                const dayInitials = ['M', 'T', 'W', 'Th', 'F']; 
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const d = new Date(year, monthIndex - 1, day);
+                    const dayOfWeek = d.getDay(); 
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                        dateHeaderNumbers.push(day);
+                        dateHeaderDays.push(dayInitials[dayOfWeek - 1]);
+                        weekdayDateStrings.push(`${year}-${String(monthIndex).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+                    }
                 }
+                const totalDateCols = weekdayDateStrings.length;
+                const totalCols = totalDateCols + 4; // Name, Dates, Absent, Tardy, Remarks
 
-                const csvContent = csvRows.join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", `Attendance_${gradeLevel.replace(' ','_')}_${startDate}_to_${endDate}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
+                aoa.push(['LEARNER\'S NAME', ...dateHeaderNumbers, 'Total ABSENT', 'Total TARDY', 'REMARKS']);
+                aoa.push([null, ...dateHeaderDays, null, null, null]);
                 
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
-                }, 100);
+                // Student Rows
+                const processStudentList = (list) => {
+                    list.forEach(student => {
+                        let row = [formatStudentName(student)];
+                        let absentCount = 0;
+                        let tardyCount = 0;
+                        weekdayDateStrings.forEach(dateStr => {
+                            const dayRecords = attendanceMap.get(dateStr);
+                            const status = dayRecords ? (dayRecords[student.id] || 'P') : 'P';
+                            if(status === 'A') { row.push('x'); absentCount++; }
+                            else if (status === 'L') { row.push('T'); tardyCount++; }
+                            else { row.push(''); }
+                        });
+                        row.push(absentCount, tardyCount, '');
+                        aoa.push(row);
+                    });
+                };
                 
-                elements.exportModal.style.display = 'none';
-                showToast('Export successful!');
+                processStudentList(maleStudents);
+                aoa.push([`MALE | TOTAL Per Day`, ...Array(totalDateCols + 3).fill('')]);
+                processStudentList(femaleStudents);
+                aoa.push([`FEMALE | TOTAL Per Day`, ...Array(totalDateCols + 3).fill('')]);
+                aoa.push([`COMBINED | TOTAL Per Day`, ...Array(totalDateCols + 3).fill('')]);
 
-            } catch (error) {
-                console.error("CSV Export Error:", error);
-                showToast('An error occurred during export.', 'error');
+                // Summary Footer
+                aoa.push([null]);
+                aoa.push([null, 'Summary', null, 'Month:', monthName]);
+                aoa.push([null, 'M', 'F', 'TOTAL']);
+                aoa.push(['* Enrolment as of (1st Friday of June)','']);
+                aoa.push(['Late Enrollment during the month', '']);
+                aoa.push(['Registered Learners as of end of the month', '']);
+                aoa.push(['Percentage of Enrolment as of end of month', '']);
+                aoa.push(['Average Daily Attendance', '']);
+                aoa.push(['Percentage of Attendance for the month', '']);
+                
+                const ws = XLSX.utils.aoa_to_sheet(aoa);
+                ws['!merges'] = [
+                    {s: {r:0, c:0}, e: {r:0, c: totalCols - 1}}, {s: {r:2, c:1}, e: {r:2, c:3}}, {s: {r:3, c:1}, e: {r:3, c:3}}, {s: {r:4, c:1}, e: {r:4, c:3}},
+                    {s: {r:2, c:5}, e: {r:2, c:6}}, {s: {r:3, c:5}, e: {r:3, c:6}}, {s: {r:4, c:5}, e: {r:4, c:6}},
+                    {s: {r:3, c:8}, e: {r:3, c:9}},
+                    {s:{r:6,c:0}, e:{r:7,c:0}}, {s:{r:6,c:totalDateCols+1}, e:{r:7,c:totalDateCols+1}},
+                    {s:{r:6,c:totalDateCols+2}, e:{r:7,c:totalDateCols+2}}, {s:{r:6,c:totalDateCols+3}, e:{r:7,c:totalDateCols+3}}
+                ];
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, `SF2 ${gradeLevel} - ${section}`);
+                XLSX.writeFile(wb, `SF2_${gradeLevel.replace(' ','_')}_${section}_${monthName}${year}.xlsx`);
+
+            } catch(e) {
+                console.error("SF2 Export Error: ", e);
+                showToast("Error creating SF2 file.", 'error');
             } finally {
                 showLoading(false);
             }
@@ -650,7 +749,7 @@
 
         function downloadTemplate(e) {
             e.preventDefault();
-            const content = "FirstName,LastName,MiddleName,Section\nJohn,Doe,,A\nJane,Smith,Anne,B";
+            const content = "FirstName,LastName,MiddleName,Gender,Section\nJohn,Doe,,Male,A\nJane,Smith,Anne,Female,B";
             const link = document.createElement("a");
             link.setAttribute("href", 'data:text/csv;charset=utf-8,' + encodeURIComponent(content));
             link.setAttribute("download", `student_import_template.csv`);
@@ -674,10 +773,10 @@
 
                 rows.forEach(rowStr => {
                     if (rowStr.trim() === '') return;
-                    const [firstName, lastName, middleName, section] = rowStr.split(',').map(s => s.trim());
-                    if (firstName && lastName && section && validSections.has(section)) {
+                    const [firstName, lastName, middleName, gender, section] = rowStr.split(',').map(s => s.trim());
+                    if (firstName && lastName && gender && section && validSections.has(section)) {
                         const newStudentRef = doc(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/students`));
-                        batch.set(newStudentRef, { firstName, lastName, middleName, gradeLevel: currentClass.id, section, createdAt: serverTimestamp() });
+                        batch.set(newStudentRef, { firstName, lastName, middleName, gender, gradeLevel: currentClass.id, section, createdAt: serverTimestamp() });
                         successfulImports++;
                     } else {
                         skippedRows++;
@@ -685,7 +784,7 @@
                 });
 
                 if (successfulImports > 0) await batch.commit();
-                showToast(`Import complete: ${successfulImports} students added, ${skippedRows} rows skipped due to missing data or invalid section.`, 'info');
+                showToast(`Import complete: ${successfulImports} students added, ${skippedRows} rows skipped.`, 'info');
                 elements.importModal.style.display = 'none';
                 elements.csvFileInput.value = '';
             } catch (error) {
@@ -845,22 +944,29 @@
                     </div>
                 </div>
                 <div class="mt-6 border-t pt-4">
-                     <h4 class="text-lg font-semibold mb-2">Student Breakdown</h4>
-                     <div class="max-h-64 overflow-y-auto pr-2">
+                     <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-lg font-semibold text-gray-900">Student Breakdown</h4>
+                        <div class="relative w-1/2">
+                            <input type="search" id="summary-search" placeholder="Search students..." class="w-full pl-8 pr-3 py-1 border border-gray-300 rounded-lg text-sm">
+                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                     </div>
+                     <div id="summary-student-list" class="max-h-64 overflow-y-auto pr-2">
                         <div class="grid grid-cols-[1fr,4rem,4rem,4rem] gap-x-4 text-sm font-semibold text-gray-600 px-2 pb-2 border-b">
                            <div>Name</div>
                            <div class="text-center">Present</div>
                            <div class="text-center">Absent</div>
                            <div class="text-center">Late</div>
                         </div>
+                        <div id="summary-student-rows">
             `;
             
             const studentArray = Object.values(summaryData.students).sort((a,b) => formatStudentName(a).localeCompare(formatStudentName(b)));
 
             studentArray.forEach(student => {
                 html += `
-                    <div class="grid grid-cols-[1fr,4rem,4rem,4rem] gap-x-4 items-center py-2 px-2 border-b hover:bg-gray-50">
-                        <div class="truncate">${formatStudentName(student)}</div>
+                    <div class="summary-student-row grid grid-cols-[1fr,4rem,4rem,4rem] gap-x-4 items-center py-2 px-2 border-b hover:bg-gray-50">
+                        <div class="truncate" data-student-name="${formatStudentName(student).toLowerCase()}">${formatStudentName(student)}</div>
                         <div class="text-center font-medium text-green-600">${student.P}</div>
                         <div class="text-center font-medium text-red-600">${student.A}</div>
                         <div class="text-center font-medium text-orange-600">${student.L}</div>
@@ -868,8 +974,16 @@
                 `;
             });
             
-            html += `</div></div>`;
+            html += `</div></div></div>`;
             elements.summaryResultsContainer.innerHTML = html;
+            
+            document.getElementById('summary-search').addEventListener('input', e => {
+                const searchTerm = e.target.value.toLowerCase();
+                document.querySelectorAll('.summary-student-row').forEach(row => {
+                    const name = row.querySelector('[data-student-name]').dataset.studentName;
+                    row.style.display = name.includes(searchTerm) ? 'grid' : 'none';
+                });
+            });
         }
 
     </script>
