@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Attendance App</title>
+    <title>Attendance App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -35,7 +35,7 @@
     <div id="login-screen" class="hidden fixed inset-0 bg-gray-100 flex items-center justify-center p-4 z-50">
         <div id="login-card" class="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
             <h2 class="text-3xl font-bold text-center text-gray-900">Welcome!</h2>
-            <p class="text-center text-gray-600 mt-2 mb-6">Sign in to manage your attendance records.</p>
+            <p class="text-center text-gray-600 mt-2 mb-6">Sign in to manage attendance records.</p>
             <div class="space-y-4">
                 <input type="email" id="email-input" placeholder="Email Address" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition">
                 <input type="password" id="password-input" placeholder="Password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition">
@@ -48,17 +48,22 @@
     </div>
 
 
-    <!-- App Container -->
+    <!-- Main App Container (for both Teacher and Admin) -->
     <div id="app-container" class="hidden min-h-screen p-4 sm:p-6 lg:p-8">
         <div class="max-w-7xl mx-auto">
             <!-- Header -->
             <header class="mb-8 flex flex-wrap justify-between items-center gap-4">
-                <div>
-                    <h1 class="text-4xl font-bold text-gray-900">Attendance Dashboard</h1>
-                    <p class="text-lg text-gray-600 mt-1">Manage your classes and track student attendance seamlessly.</p>
-                    <div id="user-info" class="mt-2 text-sm text-gray-500"></div>
+                <div class="flex items-center gap-x-4">
+                     <h1 id="main-header" class="text-4xl font-bold text-gray-900">Attendance Dashboard</h1>
+                     <div>
+                        <label for="school-year-select" class="text-sm font-medium text-gray-500">School Year</label>
+                        <select id="school-year-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"></select>
+                     </div>
                 </div>
-                 <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4">
+                    <button id="back-to-teachers-btn" class="hidden bg-gray-200 text-gray-800 font-bold px-5 py-3 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition transform hover:scale-105">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Teachers
+                    </button>
                     <button id="show-export-modal-btn" class="bg-teal-600 text-white font-bold px-5 py-3 rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed">
                         <i class="fas fa-file-excel mr-2"></i>Export Report
                     </button>
@@ -67,19 +72,27 @@
                     </button>
                 </div>
             </header>
-
-            <!-- Loading Spinner -->
-            <div id="loading-spinner" class="hidden fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
-                 <i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i>
-            </div>
+            <div id="user-info" class="mb-4 text-sm text-gray-600 font-semibold"></div>
 
             <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Left Column -->
                 <div class="lg:col-span-1 space-y-8">
                     <div class="bg-white p-6 rounded-2xl shadow-md">
-                        <h2 class="text-2xl font-semibold mb-4 flex items-center text-gray-900"><i class="fas fa-chalkboard-teacher mr-3 text-indigo-500"></i>Select Grade Level</h2>
-                        <div id="class-list" class="mt-4 space-y-2 max-h-[80vh] overflow-y-auto"></div>
+                        <h2 id="left-panel-header" class="text-2xl font-semibold mb-4 flex items-center text-gray-900"><i class="fas fa-chalkboard-teacher mr-3 text-indigo-500"></i>Select Grade Level</h2>
+                        <div id="selection-list" class="mt-4 space-y-2 max-h-[80vh] overflow-y-auto"></div>
                     </div>
+                    <!-- Grade Assignment Hub for Admins -->
+                    <div id="grade-assignment-hub" class="bg-white p-6 rounded-2xl shadow-md hidden">
+                        <h2 id="assignment-header" class="text-2xl font-semibold mb-4 flex items-center text-gray-900"></h2>
+                        <div id="grade-checkboxes" class="grid grid-cols-2 gap-4 mt-4 border-t pt-4">
+                            <!-- Checkboxes will be dynamically inserted here -->
+                        </div>
+                        <div class="mt-6 flex gap-4">
+                             <button id="save-assignments-btn" class="w-full bg-indigo-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"><i class="fas fa-save mr-2"></i>Save Assignments</button>
+                             <button id="view-dashboard-btn" class="w-full bg-gray-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">View Dashboard <i class="fas fa-arrow-right ml-2"></i></button>
+                        </div>
+                    </div>
+
                     <div id="management-hub" class="bg-white p-6 rounded-2xl shadow-md hidden">
                         <h2 class="text-2xl font-semibold mb-4 flex items-center text-gray-900"><i class="fas fa-cogs mr-3 text-gray-600"></i>Grade Level Hub</h2>
                         <h3 id="hub-header" class="text-lg font-medium text-gray-700 mb-4"></h3>
@@ -141,7 +154,7 @@
                         <div id="no-subjects-message" class="hidden text-center py-12"><i class="fas fa-book-open text-4xl text-gray-400 mb-4"></i><h3 class="text-xl font-medium text-gray-700">No subjects yet!</h3><p class="text-gray-500">Add a subject to take per-subject attendance.</p></div>
                         <div class="mt-6 text-right"><button id="save-attendance-btn" class="bg-blue-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition transform hover:scale-105 disabled:bg-gray-400"><i class="fas fa-save mr-2"></i>Save Attendance</button></div>
                     </div>
-                     <div id="attendance-placeholder" class="bg-white p-12 text-center rounded-2xl shadow-md flex flex-col items-center justify-center h-full"><i class="fas fa-chalkboard text-5xl text-gray-400 mb-4"></i><h3 class="text-2xl font-medium text-gray-700">Select a Grade Level</h3><p class="text-gray-500 mt-2 max-w-sm">Please select a grade to begin.</p></div>
+                     <div id="main-content-placeholder" class="bg-white p-12 text-center rounded-2xl shadow-md flex flex-col items-center justify-center h-full"><i class="fas fa-chalkboard text-5xl text-gray-400 mb-4"></i><h3 class="text-2xl font-medium text-gray-700">Select an item</h3><p class="text-gray-500 mt-2 max-w-sm">Please make a selection from the left panel to begin.</p></div>
                 </div>
             </main>
         </div>
@@ -173,39 +186,59 @@
     <div id="import-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full"><div class="relative top-20 mx-auto p-5 border w-full max-w-lg shadow-lg rounded-2xl bg-white modal-content"><div class="mt-3"><h3 class="text-2xl leading-6 font-bold text-gray-900 text-center mb-4">Import Students via CSV</h3><div class="px-4 py-3 text-sm text-gray-600 bg-gray-50 rounded-lg"><p class="font-semibold">Instructions:</p><ol class="list-decimal list-inside mt-2 space-y-1"><li>Prepare a CSV file with headers: `FirstName`, `LastName`, `MiddleName`, `Gender`, `Section`.</li><li>`Gender` must be `Male` or `Female`. `MiddleName` is optional.</li><li>The `Section` must exactly match a section you've set up for the currently selected grade level.</li><li><a href="#" id="download-template-btn" class="text-indigo-600 hover:underline font-semibold">Download Template CSV</a></li></ol></div><div class="mt-4"><label for="csv-file-input" class="block text-sm font-medium text-gray-700 mb-1">Select CSV File</label><input type="file" id="csv-file-input" accept=".csv" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 hover:file:bg-indigo-100"/></div><div class="items-center px-4 py-3 mt-4 space-y-2 border-t"><button id="import-csv-btn" class="w-full bg-green-600 text-white font-bold px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition disabled:bg-gray-400"><i class="fas fa-check-circle mr-2"></i>Import Students</button><button id="close-import-modal-btn" class="w-full bg-gray-200 text-gray-800 font-bold px-6 py-3 rounded-lg hover:bg-gray-300 focus:outline-none">Cancel</button></div></div></div></div>
     
     <div id="toast-container"></div>
+    <div id="loading-spinner" class="hidden fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+         <i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, onSnapshot, collection, query, where, writeBatch, serverTimestamp, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, addDoc, onSnapshot, collection, query, where, writeBatch, serverTimestamp, getDocs, deleteDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- Configuration ---
         const firebaseConfig = {
-        apiKey: "AIzaSyCQHVXqgrcEOPxGRbiTq-_EBOGIgX-n-K0",
-        authDomain: "jhs-attendance-app.firebaseapp.com",
-        projectId: "jhs-attendance-app",
-        storageBucket: "jhs-attendance-app.firebasestorage.app",
-        messagingSenderId: "622813604760",
-        appId: "1:622813604760:web:6bd481932e154512b5d9ed",
-        measurementId: "G-BQVD6JB7D5"
+            apiKey: "AIzaSyCQHVXqgrcEOPxGRbiTq-_EBOGIgX-n-K0",
+            authDomain: "jhs-attendance-app.firebaseapp.com",
+            projectId: "jhs-attendance-app",
+            storageBucket: "jhs-attendance-app.firebasestorage.app",
+            messagingSenderId: "622813604760",
+            appId: "1:622813604760:web:6bd481932e154512b5d9ed",
+            measurementId: "G-BQVD6JB7D5"
         };
         const appId = 'my-attendance-app';
-        let app, db, auth, userId = null, currentClass = null;
+        const ADMIN_EMAIL = "admin@example.com"; // Designated admin user
+
+        // --- App State ---
+        let app, db, auth, loggedInUser = null, activeUserId = null, currentClass = null, selectedSchoolYear = null;
+        let isAdmin = false;
         let unsubscribe = { students: ()=>{}, subjects: ()=>{}, sections: ()=>{}, attendance: ()=>{} };
         const GRADES = ['Kindergarten', ...Array.from({length: 12}, (_, i) => `Grade ${i + 1}`)];
         let sortOrder = 'asc';
         let currentStudentList = [];
-        
+        let allTeachers = [];
+
+        // --- DOM Elements ---
         const elements = {
             loginScreen: document.getElementById('login-screen'),
             appContainer: document.getElementById('app-container'),
+            loadingSpinner: document.getElementById('loading-spinner'),
             emailInput: document.getElementById('email-input'),
             passwordInput: document.getElementById('password-input'),
             loginBtn: document.getElementById('login-btn'),
             signupBtn: document.getElementById('signup-btn'),
             logoutBtn: document.getElementById('logout-btn'),
-            loadingSpinner: document.getElementById('loading-spinner'),
+            toastContainer: document.getElementById('toast-container'),
+            mainHeader: document.getElementById('main-header'),
+            schoolYearSelect: document.getElementById('school-year-select'),
             userInfo: document.getElementById('user-info'),
-            classList: document.getElementById('class-list'),
+            backToTeachersBtn: document.getElementById('back-to-teachers-btn'),
+            leftPanelHeader: document.getElementById('left-panel-header'),
+            selectionList: document.getElementById('selection-list'),
+            gradeAssignmentHub: document.getElementById('grade-assignment-hub'),
+            assignmentHeader: document.getElementById('assignment-header'),
+            gradeCheckboxes: document.getElementById('grade-checkboxes'),
+            saveAssignmentsBtn: document.getElementById('save-assignments-btn'),
+            viewDashboardBtn: document.getElementById('view-dashboard-btn'),
             managementHub: document.getElementById('management-hub'),
             hubHeader: document.getElementById('hub-header'),
             studentList: document.getElementById('student-list'),
@@ -222,7 +255,7 @@
             newSubjectNameInput: document.getElementById('new-subject-name'),
             addSubjectBtn: document.getElementById('add-subject-btn'),
             attendanceSection: document.getElementById('attendance-section'),
-            attendancePlaceholder: document.getElementById('attendance-placeholder'),
+            mainContentPlaceholder: document.getElementById('main-content-placeholder'),
             attendanceHeader: document.getElementById('attendance-header'),
             sortStudentsBtn: document.getElementById('sort-students-btn'),
             attendanceSearchInput: document.getElementById('take-attendance-search'),
@@ -234,7 +267,11 @@
             saveAttendanceBtn: document.getElementById('save-attendance-btn'),
             noStudentsMessage: document.getElementById('no-students-message'),
             noSubjectsMessage: document.getElementById('no-subjects-message'),
-            toastContainer: document.getElementById('toast-container'),
+            summaryGradeSelect: document.getElementById('summary-grade-select'),
+            summarySectionSelect: document.getElementById('summary-section-select'),
+            summaryYearSelect: document.getElementById('summary-year-select'),
+            summaryMonthSelect: document.getElementById('summary-month-select'),
+            summaryResultsContainer: document.getElementById('summary-results-container'),
             exportModal: document.getElementById('export-modal'),
             showExportModalBtn: document.getElementById('show-export-modal-btn'),
             closeExportModalBtn: document.getElementById('close-export-modal-btn'),
@@ -252,73 +289,58 @@
             downloadTemplateBtn: document.getElementById('download-template-btn'),
             csvFileInput: document.getElementById('csv-file-input'),
             importCsvBtn: document.getElementById('import-csv-btn'),
-            summaryGradeSelect: document.getElementById('summary-grade-select'),
-            summarySectionSelect: document.getElementById('summary-section-select'),
-            summaryYearSelect: document.getElementById('summary-year-select'),
-            summaryMonthSelect: document.getElementById('summary-month-select'),
-            summaryResultsContainer: document.getElementById('summary-results-container'),
         };
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                setupEventListeners();
-                await setPersistence(auth, browserLocalPersistence);
-                handleAuthentication();
-            } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                elements.loginScreen.classList.remove('hidden');
-                showToast("Error initializing application.", 'error');
-            }
-        });
-
+        
+        // --- Core Functions ---
+        
         function handleAuthentication() {
             onAuthStateChanged(auth, (user) => {
                 showLoading(false);
+                elements.loginScreen.style.display = 'none';
+                elements.appContainer.style.display = 'none';
+                
+                loggedInUser = user;
                 if (user) {
-                    userId = user.uid;
-                    elements.userInfo.textContent = `Signed in as: ${user.email || 'Anonymous User'}`;
-                    elements.loginScreen.style.display = 'none';
                     elements.appContainer.style.display = 'block';
-                    renderClassList();
-                    initializeSummaryView();
+                    isAdmin = user.email === ADMIN_EMAIL;
+                    if (isAdmin) {
+                        initializeAdminView();
+                    } else {
+                        initializeTeacherView(user.uid);
+                    }
                 } else {
-                    userId = null;
                     elements.loginScreen.style.display = 'flex';
-                    elements.appContainer.style.display = 'none';
-                    if(currentClass) resetToInitialState();
+                    resetToInitialState();
                 }
             });
         }
-        function showLoading(isLoading) { elements.loadingSpinner.style.display = isLoading ? 'flex' : 'none'; }
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            const bgColor = type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500';
-            const icon = type === 'error' ? '<i class="fas fa-exclamation-circle mr-3"></i>' : type === 'info' ? '<i class="fas fa-info-circle mr-3"></i>' : '<i class="fas fa-check-circle mr-3"></i>';
-            toast.className = `toast ${bgColor}`;
-            toast.innerHTML = `${icon}<span>${message}</span>`;
-            elements.toastContainer.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove()); }, 4000);
-        }
-        function formatDate(date) { return date.toISOString().split('T')[0]; }
-        function formatStudentName(s) { return `${s.lastName}, ${s.firstName} ${s.middleName || ''}`.trim(); }
-
+        
         function setupEventListeners() {
             elements.loginBtn.addEventListener('click', handleEmailLogin);
             elements.signupBtn.addEventListener('click', handleEmailSignUp);
             elements.logoutBtn.addEventListener('click', () => signOut(auth));
+            elements.backToTeachersBtn.addEventListener('click', initializeAdminView);
+            elements.saveAssignmentsBtn.addEventListener('click', saveGradeAssignments);
             elements.addStudentBtn.addEventListener('click', addStudent);
             elements.addSectionBtn.addEventListener('click', addSection);
             elements.addSubjectBtn.addEventListener('click', addSubject);
             elements.saveAttendanceBtn.addEventListener('click', saveAttendance);
+            elements.schoolYearSelect.addEventListener('change', (e) => {
+                selectedSchoolYear = e.target.value;
+                if (isAdmin) {
+                    if (activeUserId && activeUserId !== loggedInUser.uid) {
+                         const teacher = allTeachers.find(t => t.id === activeUserId);
+                         if(teacher) showGradeAssignmentView(teacher.id, teacher.email);
+                    } else { 
+                        initializeAdminView();
+                    }
+                } else {
+                    initializeTeacherView(loggedInUser.uid);
+                }
+            });
             elements.sortStudentsBtn.addEventListener('click', () => {
                 sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-                elements.sortStudentsBtn.innerHTML = sortOrder === 'asc' 
-                    ? '<i class="fas fa-sort-alpha-down mr-1"></i> Sort A-Z'
-                    : '<i class="fas fa-sort-alpha-up mr-1"></i> Sort Z-A';
+                elements.sortStudentsBtn.innerHTML = sortOrder === 'asc' ? '<i class="fas fa-sort-alpha-down mr-1"></i> Sort A-Z' : '<i class="fas fa-sort-alpha-up mr-1"></i> Sort Z-A';
                 filterAndRenderAttendance();
             });
             elements.attendanceSearchInput.addEventListener('input', filterAndRenderAttendance);
@@ -333,7 +355,6 @@
             elements.closeImportModalBtn.addEventListener('click', () => elements.importModal.style.display = 'none');
             elements.downloadTemplateBtn.addEventListener('click', downloadTemplate);
             elements.importCsvBtn.addEventListener('click', handleCSVImport);
-            // Summary Listeners
             elements.summaryGradeSelect.addEventListener('change', handleSummaryGradeChange);
             elements.summarySectionSelect.addEventListener('change', fetchAndDisplaySummary);
             elements.summaryYearSelect.addEventListener('change', fetchAndDisplaySummary);
@@ -345,63 +366,206 @@
             const password = elements.passwordInput.value;
             if (!email || !password) return showToast('Please enter email and password.', 'error');
             showLoading(true);
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                showToast(error.message, 'error');
-            } finally {
-                showLoading(false);
-            }
+            try { await signInWithEmailAndPassword(auth, email, password); } 
+            catch (error) { showToast(error.message, 'error'); } 
+            finally { showLoading(false); }
         }
+        
         async function handleEmailSignUp() {
             const email = elements.emailInput.value;
             const password = elements.passwordInput.value;
             if (!email || !password) return showToast('Please enter email and password.', 'error');
             showLoading(true);
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    email: userCredential.user.email,
+                    createdAt: serverTimestamp()
+                });
+                showToast('Sign up successful! You are now logged in.', 'success');
             } catch (error) {
                 showToast(error.message, 'error');
             } finally {
                 showLoading(false);
             }
         }
-       
-        function renderClassList() {
-            elements.classList.innerHTML = '';
+
+        function showLoading(isLoading) { elements.loadingSpinner.style.display = isLoading ? 'flex' : 'none'; }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500';
+            const icon = type === 'error' ? '<i class="fas fa-exclamation-circle mr-3"></i>' : type === 'info' ? '<i class="fas fa-info-circle mr-3"></i>' : '<i class="fas fa-check-circle mr-3"></i>';
+            toast.className = `toast ${bgColor}`;
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            elements.toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); toast.addEventListener('transitionend', () => toast.remove()); }, 4000);
+        }
+
+        function formatDate(date) { return date.toISOString().split('T')[0]; }
+        function formatStudentName(s) { return `${s.lastName}, ${s.firstName} ${s.middleName || ''}`.trim(); }
+
+        function populateSchoolYearDropdown() {
+            elements.schoolYearSelect.innerHTML = '';
+            const currentYear = new Date().getFullYear();
+            for (let i = -2; i < 3; i++) { // Show a few past, current, and future years
+                const startYear = currentYear + i;
+                const endYear = startYear + 1;
+                const schoolYear = `${startYear}-${endYear}`;
+                const option = new Option(schoolYear, schoolYear);
+                elements.schoolYearSelect.appendChild(option);
+            }
+            elements.schoolYearSelect.value = `${currentYear}-${currentYear + 1}`;
+            selectedSchoolYear = elements.schoolYearSelect.value;
+        }
+        
+        function initializeAdminView() {
+            activeUserId = null;
+            elements.mainHeader.textContent = "Admin Dashboard";
+            elements.userInfo.textContent = `Signed in as Admin: ${loggedInUser.email}`;
+            elements.leftPanelHeader.innerHTML = `<i class="fas fa-users mr-3 text-indigo-500"></i>Select Teacher`;
+            elements.backToTeachersBtn.style.display = 'none';
+            resetToInitialState();
+            fetchAndRenderTeachers();
+        }
+
+        async function initializeTeacherView(teacherId, teacherEmailForDisplay) {
+            activeUserId = teacherId;
+            elements.leftPanelHeader.innerHTML = `<i class="fas fa-chalkboard-teacher mr-3 text-indigo-500"></i>Select Grade Level`;
+            resetToInitialState();
+            
+            // Fetch assigned grades for this teacher for the current school year
+            const assignmentRef = doc(db, `assignments/${selectedSchoolYear}/teachers`, teacherId);
+            const assignmentSnap = await getDoc(assignmentRef);
+            const assignedGrades = assignmentSnap.exists() ? assignmentSnap.data().assignedGrades : [];
+            
+            if (isAdmin) {
+                elements.mainHeader.textContent = `Teacher Dashboard`;
+                elements.userInfo.textContent = `Viewing: ${teacherEmailForDisplay} | School Year: ${selectedSchoolYear}`;
+                elements.backToTeachersBtn.style.display = 'block';
+            } else {
+                elements.mainHeader.textContent = "Attendance Dashboard";
+                elements.userInfo.textContent = `Signed in as: ${loggedInUser.email} | School Year: ${selectedSchoolYear}`;
+                elements.backToTeachersBtn.style.display = 'none';
+            }
+
+            renderClassList(assignedGrades);
+            initializeSummaryView();
+        }
+
+        async function fetchAndRenderTeachers() {
+            elements.selectionList.innerHTML = `<div class="text-center p-8 text-gray-500"><i class="fas fa-spinner fa-spin text-2xl"></i></div>`;
+            try {
+                const usersSnapshot = await getDocs(query(collection(db, 'users'), where("email", "!=", ADMIN_EMAIL)));
+                allTeachers = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                elements.selectionList.innerHTML = '';
+                if (allTeachers.length === 0) {
+                    elements.selectionList.innerHTML = `<div class="text-center p-8 text-gray-500">No teachers found.</div>`;
+                    return;
+                }
+                allTeachers.sort((a,b) => a.email.localeCompare(b.email)).forEach(teacher => {
+                    const el = document.createElement('div');
+                    el.className = `p-3 rounded-lg cursor-pointer transition flex justify-between items-center group hover:bg-gray-100`;
+                    el.innerHTML = `<span>${teacher.email}</span>`;
+                    el.addEventListener('click', () => showGradeAssignmentView(teacher.id, teacher.email));
+                    elements.selectionList.appendChild(el);
+                });
+            } catch (error) {
+                console.error("Error fetching teachers:", error);
+                elements.selectionList.innerHTML = `<div class="p-4 text-center text-red-500">Could not fetch teacher list.</div>`;
+            }
+        }
+        
+        async function showGradeAssignmentView(teacherId, teacherEmail) {
+            activeUserId = teacherId;
+            resetToInitialState();
+            elements.leftPanelHeader.innerHTML = `<i class="fas fa-user-check mr-3 text-indigo-500"></i>Assign Grades`;
+            elements.selectionList.innerHTML = ''; 
+            elements.gradeAssignmentHub.style.display = 'block';
+            elements.assignmentHeader.innerHTML = `For: <span class="font-bold ml-2">${teacherEmail}</span>`;
+
+            // Fetch current assignments for the selected school year
+            const assignmentRef = doc(db, `assignments/${selectedSchoolYear}/teachers`, teacherId);
+            const assignmentSnap = await getDoc(assignmentRef);
+            const assignedGrades = assignmentSnap.exists() ? assignmentSnap.data().assignedGrades : [];
+
+            elements.gradeCheckboxes.innerHTML = '';
             GRADES.forEach(grade => {
-                const classEl = document.createElement('div');
-                classEl.className = `p-3 rounded-lg cursor-pointer transition flex justify-between items-center group hover:bg-gray-100`;
-                classEl.innerHTML = `<span>${grade}</span>`;
-                classEl.dataset.gradeName = grade;
-                classEl.addEventListener('click', () => handleClassSelection(grade));
-                elements.classList.appendChild(classEl);
+                const isChecked = assignedGrades.includes(grade);
+                const checkboxHtml = `
+                    <label for="grade-${grade}" class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" id="grade-${grade}" value="${grade}" class="form-checkbox h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" ${isChecked ? 'checked' : ''}>
+                        <span class="text-gray-700">${grade}</span>
+                    </label>
+                `;
+                elements.gradeCheckboxes.innerHTML += checkboxHtml;
+            });
+
+            elements.viewDashboardBtn.onclick = () => {
+                elements.gradeAssignmentHub.style.display = 'none';
+                initializeTeacherView(teacherId, teacherEmail);
+            };
+        }
+        
+        async function saveGradeAssignments() {
+            if (!activeUserId) return showToast("No teacher selected.", "error");
+
+            const selectedGrades = [];
+            elements.gradeCheckboxes.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedGrades.push(checkbox.value);
+            });
+            
+            const assignmentRef = doc(db, `assignments/${selectedSchoolYear}/teachers`, activeUserId);
+            try {
+                await setDoc(assignmentRef, { assignedGrades: selectedGrades });
+                showToast("Grade assignments saved successfully!", "success");
+            } catch (error) {
+                console.error("Error saving assignments: ", error);
+                showToast("Failed to save assignments.", "error");
+            }
+        }
+
+        function renderClassList(grades) {
+            elements.selectionList.innerHTML = '';
+            if (!grades || grades.length === 0) {
+                elements.selectionList.innerHTML = `<div class="text-center p-8 text-gray-500">No grades assigned for this school year.</div>`;
+                return;
+            }
+            grades.sort().forEach(grade => {
+                const el = document.createElement('div');
+                el.className = `p-3 rounded-lg cursor-pointer transition flex justify-between items-center group hover:bg-gray-100`;
+                el.innerHTML = `<span>${grade}</span>`;
+                el.dataset.gradeName = grade;
+                el.addEventListener('click', () => handleClassSelection(grade));
+                elements.selectionList.appendChild(el);
             });
         }
         
         function handleClassSelection(gradeName) {
             currentClass = { id: gradeName, name: gradeName };
-            document.querySelectorAll('#class-list > div').forEach(el => {
+            document.querySelectorAll('#selection-list > div').forEach(el => {
                 el.classList.toggle('bg-indigo-100', el.dataset.gradeName === gradeName);
                 el.classList.toggle('text-indigo-800', el.dataset.gradeName === gradeName);
                 el.classList.toggle('font-semibold', el.dataset.gradeName === gradeName);
             });
-            elements.attendancePlaceholder.style.display = 'none';
+            elements.mainContentPlaceholder.style.display = 'none';
             elements.attendanceSection.style.display = 'block';
             elements.managementHub.style.display = 'block';
             elements.hubHeader.textContent = `For ${gradeName}`;
-            // Also update summary view
             elements.summaryGradeSelect.value = gradeName;
             handleSummaryGradeChange();
-            loadStudents();
-            loadSections();
-            loadSubjects();
+            loadStudents(); loadSections(); loadSubjects();
         }
+        
         function resetToInitialState() {
             currentClass = null;
             elements.attendanceSection.style.display = 'none';
             elements.managementHub.style.display = 'none';
-            elements.attendancePlaceholder.style.display = 'flex';
+            elements.gradeAssignmentHub.style.display = 'none';
+            elements.mainContentPlaceholder.style.display = 'flex';
+            elements.selectionList.innerHTML = '';
         }
 
         function addStudent() {
@@ -411,24 +575,28 @@
             const gender = elements.newStudentGenderSelect.value;
             const section = elements.newStudentSectionSelect.value;
             if (!firstName || !lastName || !section || !gender) return showToast('Please fill all required student fields.', 'error');
-            if (!currentClass) return showToast('Please select a grade level first.', 'error');
+            if (!currentClass || !activeUserId) return showToast('Please select a grade level first.', 'error');
             const studentData = { firstName, lastName, middleName, gender, gradeLevel: currentClass.id, section, createdAt: serverTimestamp() };
-            addDoc(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/students`), studentData).then(() => {
+            const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/students`;
+            addDoc(collection(db, path), studentData).then(() => {
                 [elements.newStudentFirstNameInput, elements.newStudentLastNameInput, elements.newStudentMiddleNameInput, elements.newStudentSectionSelect, elements.newStudentGenderSelect].forEach(el => el.value = '');
                 showToast('Student added successfully!');
             });
         }
+        
         async function loadStudents() {
-            if (!currentClass) return;
-            const q = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/students`));
-            unsubscribe.students();
+            if (!currentClass || !activeUserId) return;
+            const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/students`;
+            const q = query(collection(db, path));
+            if (unsubscribe.students) unsubscribe.students();
             unsubscribe.students = onSnapshot(q, (snapshot) => {
                 currentStudentList = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderStudentList(currentStudentList);
+                renderStudentListUI(currentStudentList);
                 filterAndRenderAttendance();
             });
         }
-        function renderStudentList(students) {
+        
+        function renderStudentListUI(students) {
             elements.studentList.innerHTML = '';
             if (!students || students.length === 0) { elements.studentList.innerHTML = '<p class="text-gray-500 text-center p-4">No students yet.</p>'; return; }
             students.sort((a,b) => formatStudentName(a).localeCompare(formatStudentName(b))).forEach(student => {
@@ -443,16 +611,19 @@
         function addSection() {
             const name = elements.newSectionNameInput.value.trim();
             if (!name) return showToast('Please enter a section name.', 'error');
-            if (!currentClass) return showToast('Please select a grade level first.', 'error');
-            addDoc(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/sections`), { name, createdAt: serverTimestamp() }).then(() => {
+            if (!currentClass || !activeUserId) return showToast('Please select a grade level first.', 'error');
+            const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/sections`;
+            addDoc(collection(db, path), { name, createdAt: serverTimestamp() }).then(() => {
                 elements.newSectionNameInput.value = '';
                 showToast('Section added!');
             });
         }
+        
         async function loadSections() {
-             if (!currentClass) return;
-            const q = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/sections`));
-            unsubscribe.sections();
+             if (!currentClass || !activeUserId) return;
+            const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/sections`;
+            const q = query(collection(db, path));
+            if (unsubscribe.sections) unsubscribe.sections();
             unsubscribe.sections = onSnapshot(q, (snapshot) => {
                 elements.sectionList.innerHTML = '';
                 elements.newStudentSectionSelect.innerHTML = '<option value="">Select Section</option>';
@@ -474,16 +645,19 @@
         function addSubject() {
             const name = elements.newSubjectNameInput.value.trim();
             if(!name) return showToast('Subject name cannot be empty.', 'error');
-            if(!currentClass) return showToast('Please select a grade level first.', 'error');
-            addDoc(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/subjects`), { name, createdAt: serverTimestamp() }).then(() => {
+            if(!currentClass || !activeUserId) return showToast('Please select a grade level first.', 'error');
+            const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/subjects`;
+            addDoc(collection(db, path), { name, createdAt: serverTimestamp() }).then(() => {
                 elements.newSubjectNameInput.value = '';
                 showToast('Subject added!');
             });
         }
+
         async function loadSubjects() {
-            if (!currentClass) return;
-            const q = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/subjects`));
-            unsubscribe.subjects();
+            if (!currentClass || !activeUserId) return;
+            const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/subjects`;
+            const q = query(collection(db, path));
+            if (unsubscribe.subjects) unsubscribe.subjects();
             unsubscribe.subjects = onSnapshot(q, (snapshot) => {
                 elements.subjectList.innerHTML = '';
                 elements.attendanceSubjectSelect.innerHTML = '<option value="">Select Subject</option>';
@@ -501,10 +675,16 @@
                 loadAttendance();
             });
         }
+        
         async function deleteItemFromSubcollection(itemId, itemName, collectionName) {
-            if (confirm(`Are you sure you want to delete "${itemName}"?`)) {
-                const docRef = doc(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/${collectionName}`, itemId);
-                await deleteDoc(docRef).catch(err => showToast(`Failed to delete.`, 'error'));
+            if (confirm(`Are you sure you want to delete "${itemName}"? This action cannot be undone.`)) {
+                const docRef = doc(db, `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/${collectionName}`, itemId);
+                try {
+                    await deleteDoc(docRef);
+                    showToast(`"${itemName}" was deleted.`);
+                } catch(err) {
+                    showToast(`Failed to delete.`, 'error'); console.error(err);
+                }
             }
         }
         
@@ -516,11 +696,14 @@
             elements.attendanceList.style.display = isSubjectMode && !hasSubjects ? 'none' : 'block';
             loadAttendance();
         }
+
         function filterAndRenderAttendance() {
+            if (!activeUserId) return;
             const searchTerm = elements.attendanceSearchInput.value.toLowerCase();
             const filteredStudents = currentStudentList.filter(student => formatStudentName(student).toLowerCase().includes(searchTerm));
             renderAttendanceListUI(filteredStudents);
         }
+
         function renderAttendanceListUI(students) {
             elements.attendanceList.innerHTML = '';
             const hasStudents = students && students.length > 0;
@@ -543,8 +726,9 @@
             });
             loadAttendance();
         }
+
         function loadAttendance() {
-            if (!currentClass || !userId) return;
+            if (!currentClass || !activeUserId) return;
             const dateStr = elements.attendanceDateInput.value || formatDate(new Date());
             elements.attendanceDateInput.value = dateStr;
             const isSubjectMode = elements.attendanceModeSubject.checked;
@@ -552,13 +736,14 @@
             elements.attendanceHeader.textContent = `For ${currentClass.name}`;
             if (isSubjectMode && subjectId) elements.attendanceHeader.textContent += ` - ${elements.attendanceSubjectSelect.selectedOptions[0]?.textContent}`;
             if (isSubjectMode && !subjectId) { applyAttendanceData({}); return; }
-            const attendanceCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/attendance`);
+            const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/attendance`;
             const q = isSubjectMode
-                ? query(attendanceCollectionRef, where("gradeLevel", "==", currentClass.id), where("date", "==", dateStr), where("subjectId", "==", subjectId))
-                : query(attendanceCollectionRef, where("gradeLevel", "==", currentClass.id), where("date", "==", dateStr), where("type", "==", "daily"));
-            unsubscribe.attendance();
+                ? query(collection(db, path), where("gradeLevel", "==", currentClass.id), where("date", "==", dateStr), where("subjectId", "==", subjectId))
+                : query(collection(db, path), where("gradeLevel", "==", currentClass.id), where("date", "==", dateStr), where("type", "==", "daily"));
+            if(unsubscribe.attendance) unsubscribe.attendance();
             unsubscribe.attendance = onSnapshot(q, (snapshot) => applyAttendanceData(snapshot.empty ? {} : snapshot.docs[0].data().studentRecords));
         }
+
         function applyAttendanceData(records) {
              document.querySelectorAll('#attendance-list > div[data-student-id]').forEach(row => {
                 const status = records[row.dataset.studentId] || 'P';
@@ -566,8 +751,9 @@
                 if (radio) radio.checked = true;
             });
         }
+        
         async function saveAttendance() {
-            if (!currentClass || !userId) return showToast('No grade level selected.', 'error');
+            if (!currentClass || !activeUserId) return showToast('No grade level selected.', 'error');
             const dateStr = elements.attendanceDateInput.value;
             const isSubjectMode = elements.attendanceModeSubject.checked;
             const subjectId = elements.attendanceSubjectSelect.value;
@@ -576,27 +762,29 @@
             document.querySelectorAll('#attendance-list div[data-student-id]').forEach(row => { studentRecords[row.dataset.studentId] = row.querySelector('input:checked').value; });
             if (Object.keys(studentRecords).length === 0) return showToast('No students to save.', 'error');
             showLoading(true);
-            const attendanceCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/attendance`);
+            const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/attendance`;
             let q; let dataToSave = { gradeLevel: currentClass.id, date: dateStr, studentRecords, lastModified: serverTimestamp() };
             if (isSubjectMode) {
-                q = query(attendanceCollectionRef, where("gradeLevel", "==", currentClass.id), where("date", "==", dateStr), where("subjectId", "==", subjectId));
+                q = query(collection(db, path), where("gradeLevel", "==", currentClass.id), where("date", "==", dateStr), where("subjectId", "==", subjectId));
                 dataToSave = { ...dataToSave, type: 'subject', subjectId, subjectName: elements.attendanceSubjectSelect.selectedOptions[0]?.textContent };
             } else {
-                q = query(attendanceCollectionRef, where("gradeLevel", "==", currentClass.id), where("date", "==", dateStr), where("type", "==", "daily"));
+                q = query(collection(db, path), where("gradeLevel", "==", currentClass.id), where("date", "==", dateStr), where("type", "==", "daily"));
                 dataToSave.type = 'daily';
             }
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) await updateDoc(querySnapshot.docs[0].ref, dataToSave);
-            else await addDoc(attendanceCollectionRef, { ...dataToSave, createdAt: serverTimestamp() });
+            else await addDoc(collection(db, path), { ...dataToSave, createdAt: serverTimestamp() });
             showToast('Attendance saved!');
             showLoading(false);
         }
-
+        
         async function openExportModal() {
+            if (!activeUserId) return showToast("Please select a teacher first (Admin Mode).", "error");
             elements.exportGradeLevel.innerHTML = '<option value="">Select Grade & Section</option>';
             
             for (const gradeDoc of GRADES) {
-                const sectionsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${gradeDoc}/sections`));
+                const path = `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${gradeDoc}/sections`;
+                const sectionsQuery = query(collection(db, path));
                 const sectionsSnapshot = await getDocs(sectionsQuery);
                 if (!sectionsSnapshot.empty) {
                      sectionsSnapshot.docs.forEach(sectionDoc => {
@@ -621,6 +809,7 @@
         }
         
         async function exportToExcel() {
+            if (!activeUserId) return showToast("Please select a teacher first (Admin Mode).", "error");
             const schoolName = elements.exportSchoolName.value;
             const schoolId = elements.exportSchoolId.value;
             const district = elements.exportDistrict.value;
@@ -638,15 +827,11 @@
                 const monthName = new Date(year, monthIndex - 1, 1).toLocaleString('default', { month: 'long' });
                 const daysInMonth = new Date(year, monthIndex, 0).getDate();
 
-                const studentsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${gradeLevel}/students`), where('section', '==', section));
-                const attendanceRef = collection(db, `artifacts/${appId}/users/${userId}/attendance`);
-                // FIX: Query only by gradeLevel, then filter date in app
+                const studentsQuery = query(collection(db, `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${gradeLevel}/students`), where('section', '==', section));
+                const attendanceRef = collection(db, `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/attendance`);
                 const attendanceQuery = query(attendanceRef, where('gradeLevel', '==', gradeLevel));
 
-                const [studentsSnapshot, attendanceSnapshot] = await Promise.all([
-                    getDocs(studentsQuery),
-                    getDocs(attendanceQuery)
-                ]);
+                const [studentsSnapshot, attendanceSnapshot] = await Promise.all([ getDocs(studentsQuery), getDocs(attendanceQuery) ]);
                 
                 const students = studentsSnapshot.docs.map(d => ({id: d.id, ...d.data()}));
                 const maleStudents = students.filter(s => s.gender === 'Male').sort((a,b) => formatStudentName(a).localeCompare(formatStudentName(b)));
@@ -665,21 +850,23 @@
 
                 let aoa = [];
                 // SF2 Header
-                aoa.push(['School Form 2 (SF2) Daily Attendance Report of Learners']); aoa.push([null]);
+                aoa.push(['School Form 2 (SF2) Daily Attendance Report of Learners']); 
+                aoa.push([null]);
                 aoa.push(['School Name', schoolName, null, null, 'School ID', schoolId, null, 'Region', region]);
                 aoa.push(['District', district, null, null, 'Division', division, null, 'Report for the month of', monthName]);
-                aoa.push(['Grade Level', gradeLevel, null, null, 'Section', section]); aoa.push([null]);
+                aoa.push(['Grade Level', gradeLevel, null, null, 'Section', section]); 
+                aoa.push([null]);
 
                 // Table Header
                 let dateHeaderNumbers = [];
                 let dateHeaderDays = [];
                 let weekdayDateStrings = [];
-                const dayInitials = ['M', 'T', 'W', 'Th', 'F']; 
+                const dayInitials = ['M', 'T', 'W', 'TH', 'F']; 
 
                 for (let day = 1; day <= daysInMonth; day++) {
                     const d = new Date(year, monthIndex - 1, day);
                     const dayOfWeek = d.getDay(); 
-                    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Skip Sunday and Saturday
                         dateHeaderNumbers.push(day);
                         dateHeaderDays.push(dayInitials[dayOfWeek - 1]);
                         weekdayDateStrings.push(`${year}-${String(monthIndex).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
@@ -690,7 +877,7 @@
 
                 aoa.push(['LEARNER\'S NAME', ...dateHeaderNumbers, 'Total ABSENT', 'Total TARDY', 'REMARKS']);
                 aoa.push([null, ...dateHeaderDays, null, null, null]);
-                
+
                 // Student Rows
                 const processStudentList = (list) => {
                     list.forEach(student => {
@@ -699,7 +886,7 @@
                         let tardyCount = 0;
                         weekdayDateStrings.forEach(dateStr => {
                             const dayRecords = attendanceMap.get(dateStr);
-                            const status = dayRecords ? (dayRecords[student.id] || 'P') : 'P';
+                            const status = dayRecords ? (dayRecords[student.id] || 'P') : 'P'; // Default to Present if no record
                             if(status === 'A') { row.push('x'); absentCount++; }
                             else if (status === 'L') { row.push('T'); tardyCount++; }
                             else { row.push(''); }
@@ -708,7 +895,7 @@
                         aoa.push(row);
                     });
                 };
-                
+
                 processStudentList(maleStudents);
                 aoa.push([`MALE | TOTAL Per Day`, ...Array(totalDateCols + 3).fill('')]);
                 processStudentList(femaleStudents);
@@ -726,6 +913,11 @@
                 aoa.push(['Average Daily Attendance', '']);
                 aoa.push(['Percentage of Attendance for the month', '']);
                 
+                if (aoa.length <= 10) { // Check if only headers are present
+                    showToast("No data to export for the selected criteria.", 'error');
+                    return; 
+                }
+                                
                 const ws = XLSX.utils.aoa_to_sheet(aoa);
                 ws['!merges'] = [
                     {s: {r:0, c:0}, e: {r:0, c: totalCols - 1}}, {s: {r:2, c:1}, e: {r:2, c:3}}, {s: {r:3, c:1}, e: {r:3, c:3}}, {s: {r:4, c:1}, e: {r:4, c:3}},
@@ -753,16 +945,20 @@
             const link = document.createElement("a");
             link.setAttribute("href", 'data:text/csv;charset=utf-8,' + encodeURIComponent(content));
             link.setAttribute("download", `student_import_template.csv`);
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
         }
+
         async function handleCSVImport() {
+            if (!activeUserId) return showToast("Please select a teacher first (Admin Mode).", "error");
             const file = elements.csvFileInput.files[0];
             if (!file) return showToast('Please select a file to import.', 'error');
             if (!currentClass) return showToast('Please select a grade level first.', 'error');
             showLoading(true);
 
             try {
-                const sectionsQuery = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/sections`));
+                const sectionsQuery = await getDocs(collection(db, `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/sections`));
                 const validSections = new Set(sectionsQuery.docs.map(d => d.data().name));
 
                 const fileContent = await file.text();
@@ -775,7 +971,7 @@
                     if (rowStr.trim() === '') return;
                     const [firstName, lastName, middleName, gender, section] = rowStr.split(',').map(s => s.trim());
                     if (firstName && lastName && gender && section && validSections.has(section)) {
-                        const newStudentRef = doc(collection(db, `artifacts/${appId}/users/${userId}/grades/${currentClass.id}/students`));
+                        const newStudentRef = doc(collection(db, `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${currentClass.id}/students`));
                         batch.set(newStudentRef, { firstName, lastName, middleName, gender, gradeLevel: currentClass.id, section, createdAt: serverTimestamp() });
                         successfulImports++;
                     } else {
@@ -794,8 +990,7 @@
                 showLoading(false);
             }
         }
-
-        // --- SUMMARY VIEW ---
+        
         function initializeSummaryView(){
             const yearSelect = elements.summaryYearSelect;
             const monthSelect = elements.summaryMonthSelect;
@@ -820,6 +1015,7 @@
         }
 
         async function handleSummaryGradeChange(){
+            if (!activeUserId) return;
             const grade = elements.summaryGradeSelect.value;
             const sectionSelect = elements.summarySectionSelect;
             sectionSelect.innerHTML = '<option value="all">All Sections</option>';
@@ -830,7 +1026,7 @@
                 return;
             }
 
-            const q = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${grade}/sections`));
+            const q = query(collection(db, `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${grade}/sections`));
             const snapshot = await getDocs(q);
             if(!snapshot.empty){
                 snapshot.docs.forEach(d => {
@@ -842,6 +1038,10 @@
         }
 
         async function fetchAndDisplaySummary(){
+             if (!activeUserId) {
+                elements.summaryResultsContainer.innerHTML = '<div class="text-center py-8 text-gray-500">Please select a teacher and grade to view summary.</div>';
+                return;
+            }
             const grade = elements.summaryGradeSelect.value;
             const section = elements.summarySectionSelect.value;
             const month = elements.summaryMonthSelect.value;
@@ -864,38 +1064,29 @@
             }
 
             try {
-                // 1. Get students
-                let studentsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/grades/${grade}/students`));
+                let studentsQuery = query(collection(db, `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/grades/${grade}/students`));
                 if(section !== 'all') {
                     studentsQuery = query(studentsQuery, where('section', '==', section));
                 }
                 const studentsSnapshot = await getDocs(studentsQuery);
                 const studentMap = new Map(studentsSnapshot.docs.map(d => [d.id, d.data()]));
-                const studentIds = Array.from(studentMap.keys());
                 
-                if (studentIds.length === 0) {
+                if (studentMap.size === 0) {
                      elements.summaryResultsContainer.innerHTML = '<div class="text-center py-8 text-gray-500">No students found for this selection.</div>';
                     return;
                 }
                 
-                // 2. Get attendance for the month
-                const attendanceRef = collection(db, `artifacts/${appId}/users/${userId}/attendance`);
+                const attendanceRef = collection(db, `artifacts/${appId}/schoolYears/${selectedSchoolYear}/users/${activeUserId}/attendance`);
                 const attendanceQuery = query(attendanceRef, where('gradeLevel', '==', grade));
                 const attendanceSnapshot = await getDocs(attendanceQuery);
                 const attendanceData = attendanceSnapshot.docs
                     .map(d => d.data())
                     .filter(record => record.date >= startDate && record.date <= lastDate);
 
-                // 3. Process data
-                const summary = {
-                    totalPresent: 0, totalAbsent: 0, totalLate: 0, totalRecords: 0,
-                    students: {}
-                };
-
+                const summary = { totalPresent: 0, totalAbsent: 0, totalLate: 0, totalRecords: 0, students: {} };
                 studentMap.forEach((student, id) => {
                     summary.students[id] = { ...student, id, P: 0, A: 0, L: 0 };
                 });
-
                 attendanceData.forEach(record => {
                     for(const studentId in record.studentRecords){
                          if(summary.students[studentId]){
@@ -908,9 +1099,7 @@
                          }
                     }
                 });
-
                 renderSummary(summary);
-
             } catch(error){
                 console.error("Error fetching summary: ", error);
                 showToast("Failed to load summary.", 'error');
@@ -930,62 +1119,55 @@
 
             let html = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <div class="bg-green-100 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-green-700">${summaryData.totalPresent}</div>
-                        <div class="text-sm text-green-600">Present (${presentPercent}%)</div>
-                    </div>
-                    <div class="bg-red-100 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-red-700">${summaryData.totalAbsent}</div>
-                        <div class="text-sm text-red-600">Absent (${absentPercent}%)</div>
-                    </div>
-                    <div class="bg-orange-100 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-orange-700">${summaryData.totalLate}</div>
-                        <div class="text-sm text-orange-600">Late (${latePercent}%)</div>
-                    </div>
+                    <div class="bg-green-100 p-4 rounded-lg"><div class="text-3xl font-bold text-green-700">${summaryData.totalPresent}</div><div class="text-sm text-green-600">Present (${presentPercent}%)</div></div>
+                    <div class="bg-red-100 p-4 rounded-lg"><div class="text-3xl font-bold text-red-700">${summaryData.totalAbsent}</div><div class="text-sm text-red-600">Absent (${absentPercent}%)</div></div>
+                    <div class="bg-orange-100 p-4 rounded-lg"><div class="text-3xl font-bold text-orange-700">${summaryData.totalLate}</div><div class="text-sm text-orange-600">Late (${latePercent}%)</div></div>
                 </div>
                 <div class="mt-6 border-t pt-4">
                      <div class="flex justify-between items-center mb-2">
                         <h4 class="text-lg font-semibold text-gray-900">Student Breakdown</h4>
-                        <div class="relative w-1/2">
-                            <input type="search" id="summary-search" placeholder="Search students..." class="w-full pl-8 pr-3 py-1 border border-gray-300 rounded-lg text-sm">
-                            <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        </div>
+                        <div class="relative w-1/2"><input type="search" id="summary-search" placeholder="Search students..." class="w-full pl-8 pr-3 py-1 border border-gray-300 rounded-lg text-sm"><i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"></i></div>
                      </div>
                      <div id="summary-student-list" class="max-h-64 overflow-y-auto pr-2">
                         <div class="grid grid-cols-[1fr,4rem,4rem,4rem] gap-x-4 text-sm font-semibold text-gray-600 px-2 pb-2 border-b">
-                           <div>Name</div>
-                           <div class="text-center">Present</div>
-                           <div class="text-center">Absent</div>
-                           <div class="text-center">Late</div>
-                        </div>
-                        <div id="summary-student-rows">
-            `;
+                           <div>Name</div><div class="text-center">Present</div><div class="text-center">Absent</div><div class="text-center">Late</div>
+                        </div><div id="summary-student-rows">`;
             
             const studentArray = Object.values(summaryData.students).sort((a,b) => formatStudentName(a).localeCompare(formatStudentName(b)));
-
             studentArray.forEach(student => {
                 html += `
                     <div class="summary-student-row grid grid-cols-[1fr,4rem,4rem,4rem] gap-x-4 items-center py-2 px-2 border-b hover:bg-gray-50">
                         <div class="truncate" data-student-name="${formatStudentName(student).toLowerCase()}">${formatStudentName(student)}</div>
-                        <div class="text-center font-medium text-green-600">${student.P}</div>
-                        <div class="text-center font-medium text-red-600">${student.A}</div>
-                        <div class="text-center font-medium text-orange-600">${student.L}</div>
-                    </div>
-                `;
+                        <div class="text-center font-medium text-green-600">${student.P}</div><div class="text-center font-medium text-red-600">${student.A}</div><div class="text-center font-medium text-orange-600">${student.L}</div>
+                    </div>`;
             });
-            
             html += `</div></div></div>`;
             elements.summaryResultsContainer.innerHTML = html;
             
             document.getElementById('summary-search').addEventListener('input', e => {
                 const searchTerm = e.target.value.toLowerCase();
                 document.querySelectorAll('.summary-student-row').forEach(row => {
-                    const name = row.querySelector('[data-student-name]').dataset.studentName;
-                    row.style.display = name.includes(searchTerm) ? 'grid' : 'none';
+                    row.style.display = row.querySelector('[data-student-name]').dataset.studentName.includes(searchTerm) ? 'grid' : 'none';
                 });
             });
         }
-
+        
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                populateSchoolYearDropdown();
+                setupEventListeners();
+                await setPersistence(auth, browserLocalPersistence);
+                handleAuthentication();
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                showLoading(false);
+                showToast("Error initializing application.", 'error');
+            }
+        });
     </script>
 </body>
 </html>
